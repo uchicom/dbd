@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dbd>
+	<tables>
+		<table name="Sample_Table" logical="サンプルテーブル" description="説明だ">
+			<column name="sample" logical="サンプル" type="varchar" order="64"
+				null="true" key="primary" default="" description="">
+			</column>
+		</table>
+		<table name="Sample_Table2" logical="サンプルテーブル2" description="説明だ">
+			<column name="sample" logical="サンプル" type="varchar" order="64"
+				null="true" key="primary" default="" description="">
+			</column>
+		</table>
+	</tables>
+	<indexs>
+	</indexs>
+	<constraints>
+	</constraints>
+</dbd>
