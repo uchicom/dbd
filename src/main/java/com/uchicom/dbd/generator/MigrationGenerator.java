@@ -40,7 +40,7 @@ public class MigrationGenerator {
 						XSSFCell cell = row.getCell(0);
 						if (LABEL_TABLE_NAME.equals(cell.getStringCellValue())) {
 							Table from = new Table();
-							from.name = row.getCell(1).getStringCellValue();
+							from.name = row.getCell(7).getStringCellValue();
 							String[] froms = from.name.split("\\.");
 							if (froms.length > 1) {
 								from.schema = froms[0];
@@ -49,7 +49,7 @@ public class MigrationGenerator {
 								from.schema = "";
 							}
 							Table to = new Table();
-							to.name = row.getCell(7).getStringCellValue();
+							to.name = row.getCell(1).getStringCellValue();
 							String[] tos = to.name.split("\\.");
 							if (tos.length > 1) {
 								to.schema = tos[0];
@@ -59,8 +59,8 @@ public class MigrationGenerator {
 							}
 							transfer.from = from;
 							transfer.to = to;
-							transfer.fromDb = row.getCell(2).getStringCellValue();
-							transfer.toDb = row.getCell(8).getStringCellValue();
+							transfer.fromDb = row.getCell(8).getStringCellValue();
+							transfer.toDb = row.getCell(2).getStringCellValue();
 							transfer.transformId = from.name + "_to_" + to.name;
 						} else if (LABEL_COLUMN_LOGICAL_NAME.equals(cell.getStringCellValue())) {
 							// 次の行からはデータからむ
@@ -68,8 +68,8 @@ public class MigrationGenerator {
 						} else if (data) {
 							Column from = new Column();
 							Column to = new Column();
-							from.name = row.getCell(1).getStringCellValue();
-							to.name = row.getCell(8).getStringCellValue();
+							from.name = row.getCell(8).getStringCellValue();
+							to.name = row.getCell(1).getStringCellValue();
 							TransferColumn transferColumn = new TransferColumn(from, to);
 							transferColumn.type = "copy";
 							if (transfer.transferColumnList.isEmpty()) {
@@ -89,17 +89,15 @@ public class MigrationGenerator {
 		}
 
 	}
-	
+
 	public String values(List<Transfer> transferList) {
 		StringBuilder builder = new StringBuilder(1024);
 
-		builder.append("insert into sym_transform_table" + 
-				"(transform_id, source_node_group_id, target_node_group_id, transform_point," + 
-				"source_schema_name, source_table_name," + 
-				"target_schema_name, target_table_name," + 
-				"delete_action, transform_order, column_policy, update_first," + 
-				"last_update_by, last_update_time, create_time)\n" + 
-				"values\n");
+		builder.append("insert into sym_transform_table"
+				+ "(transform_id, source_node_group_id, target_node_group_id, transform_point,"
+				+ "source_schema_name, source_table_name," + "target_schema_name, target_table_name,"
+				+ "delete_action, transform_order, column_policy, update_first,"
+				+ "last_update_by, last_update_time, create_time)\n" + "values\n");
 		for (int i = 0; i < transferList.size(); i++) {
 			if (i != 0) {
 				builder.append(",\n");
@@ -108,9 +106,9 @@ public class MigrationGenerator {
 		}
 		builder.append(";\n");
 		for (int i = 0; i < transferList.size(); i++) {
-//			if (i != 0) {
-//				builder.append(",\n");
-//			}
+			// if (i != 0) {
+			// builder.append(",\n");
+			// }
 			builder.append(transferList.get(i));
 		}
 		return builder.toString();
