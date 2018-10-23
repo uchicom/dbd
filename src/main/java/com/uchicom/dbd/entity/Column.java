@@ -11,5 +11,8 @@ public class Column {
 	public String logical;
 	public String type;
 	public String order;
+	public String identity;
+	public String pk;
+	public String index;
 	public String description;
 }
