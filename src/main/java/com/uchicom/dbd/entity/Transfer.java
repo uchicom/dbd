@@ -1,6 +1,7 @@
 // (c) 2018 uchicom
 package com.uchicom.dbd.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,18 +11,18 @@ import java.util.List;
 public class Transfer {
 
 	public String transformId;
-	
+
 	public Table from;
-	
+
 	public Table to;
-	
-	public List<TransferColumn> transferColumnList;
-	
-	
+
+	public List<TransferColumn> transferColumnList = new ArrayList<>();
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder(1024);
-		builder.append("insert into sym_transform_column(transform_id, include_on, source_column_name, target_column_name, pk,transform_type, transform_expression, transform_order,last_update_time, last_update_by, create_time)"
+		builder.append("insert into sym_transform_column"
+				+ "(transform_id, include_on, source_column_name, target_column_name, pk,transform_type, transform_expression, transform_order,last_update_time, last_update_by, create_time)"
 				+ "\nvalues");
 		for (int i = 0; i < transferColumnList.size(); i++) {
 			if (i != 0) {

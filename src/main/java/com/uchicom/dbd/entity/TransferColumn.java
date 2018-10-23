@@ -10,6 +10,8 @@ public class TransferColumn {
 	private Column from;
 	private Column to;
 
+	public String type;
+
 	public TransferColumn(Column from, Column to) {
 		this.from = from;
 		this.to = to;
