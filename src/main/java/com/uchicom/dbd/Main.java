@@ -4,6 +4,7 @@ package com.uchicom.dbd;
 import java.io.File;
 
 import com.uchicom.dbd.entity.Table;
+import com.uchicom.dbd.generator.MigrationGenerator;
 import com.uchicom.dbd.util.DbdFactory;
 
 /**
@@ -16,8 +17,13 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		for (Table table : DbdFactory.getTableList(new File("sample/table.xml"))) {
-			System.out.println(table.name);
+		if (args.length > 0) {
+			MigrationGenerator generator = new MigrationGenerator();
+			generator.generate(new File(args[0]));
+		} else {
+			for (Table table : DbdFactory.getTableList(new File("sample/table.xml"))) {
+				System.out.println(table.name);
+			}
 		}
 	}
 

@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class Table {
 
+	public String schema;
 	public String name;
 	public String logical;
 	public String description;

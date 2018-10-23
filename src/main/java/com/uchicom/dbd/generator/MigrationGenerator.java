@@ -4,11 +4,13 @@ package com.uchicom.dbd.generator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.uchicom.dbd.entity.Column;
 import com.uchicom.dbd.entity.Table;
@@ -25,42 +27,92 @@ public class MigrationGenerator {
 	private static String LABEL_COLUMN_LOGICAL_NAME = "論理名";
 
 	public void generate(File file) {
-		try (FileInputStream fis = new FileInputStream(file);
-				HSSFWorkbook book = new HSSFWorkbook(fis);) {
+		try (FileInputStream fis = new FileInputStream(file); XSSFWorkbook book = new XSSFWorkbook(fis);) {
 			int size = book.getNumberOfSheets();
+			List<Transfer> transferList = new ArrayList<>();
 			for (int i = 0; i < size; i++) {
-				HSSFSheet sheet = book.getSheetAt(i);
+				XSSFSheet sheet = book.getSheetAt(i);
 				boolean data = false;
 				Transfer transfer = new Transfer();
 				for (int iRow = sheet.getFirstRowNum(); iRow <= sheet.getLastRowNum(); iRow++) {
-					HSSFRow row = sheet.getRow(iRow);
+					XSSFRow row = sheet.getRow(iRow);
 					if (row.getFirstCellNum() >= 0) {
-						HSSFCell cell = row.getCell(0);
+						XSSFCell cell = row.getCell(0);
 						if (LABEL_TABLE_NAME.equals(cell.getStringCellValue())) {
 							Table from = new Table();
 							from.name = row.getCell(1).getStringCellValue();
+							String[] froms = from.name.split("\\.");
+							if (froms.length > 1) {
+								from.schema = froms[0];
+								from.name = froms[1];
+							} else {
+								from.schema = "";
+							}
 							Table to = new Table();
 							to.name = row.getCell(7).getStringCellValue();
+							String[] tos = to.name.split("\\.");
+							if (tos.length > 1) {
+								to.schema = tos[0];
+								to.name = tos[1];
+							} else {
+								to.schema = "";
+							}
 							transfer.from = from;
 							transfer.to = to;
+							transfer.fromDb = row.getCell(2).getStringCellValue();
+							transfer.toDb = row.getCell(8).getStringCellValue();
+							transfer.transformId = from.name + "_to_" + to.name;
 						} else if (LABEL_COLUMN_LOGICAL_NAME.equals(cell.getStringCellValue())) {
-							//次の行からはデータからむ
+							// 次の行からはデータからむ
 							data = true;
+						} else if (data) {
+							Column from = new Column();
+							Column to = new Column();
+							from.name = row.getCell(1).getStringCellValue();
+							to.name = row.getCell(8).getStringCellValue();
+							TransferColumn transferColumn = new TransferColumn(from, to);
+							transferColumn.type = "copy";
+							if (transfer.transferColumnList.isEmpty()) {
+								transferColumn.pk = "1";
+							}
+							transfer.transferColumnList.add(transferColumn);
 						}
-					} else if (data) {
-						Column from = new Column();
-						Column to = new Column();
-						from.name = row.getCell(1).getStringCellValue();
-						to.name = row.getCell(8).getStringCellValue();
-						TransferColumn transferColumn = new TransferColumn(from, to);
-						transferColumn.type = "copy";
-						transfer.transferColumnList.add(transferColumn);
 					}
 				}
+				if (transfer.transformId != null) {
+					transferList.add(transfer);
+				}
 			}
+			System.out.println(values(transferList));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public String values(List<Transfer> transferList) {
+		StringBuilder builder = new StringBuilder(1024);
+
+		builder.append("insert into sym_transform_table" + 
+				"(transform_id, source_node_group_id, target_node_group_id, transform_point," + 
+				"source_schema_name, source_table_name," + 
+				"target_schema_name, target_table_name," + 
+				"delete_action, transform_order, column_policy, update_first," + 
+				"last_update_by, last_update_time, create_time)\n" + 
+				"values\n");
+		for (int i = 0; i < transferList.size(); i++) {
+			if (i != 0) {
+				builder.append(",\n");
+			}
+			builder.append(transferList.get(i).values(i + 1));
+		}
+		builder.append(";\n");
+		for (int i = 0; i < transferList.size(); i++) {
+//			if (i != 0) {
+//				builder.append(",\n");
+//			}
+			builder.append(transferList.get(i));
+		}
+		return builder.toString();
 	}
 }

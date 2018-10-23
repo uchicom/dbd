@@ -11,6 +11,8 @@ public class TransferColumn {
 	private Column to;
 
 	public String type;
+	
+	public String pk;
 
 	public TransferColumn(Column from, Column to) {
 		this.from = from;
@@ -26,9 +28,9 @@ public class TransferColumn {
 				.append("', '")
 				.append(to.name == null ? "" : to.name)
 				.append("', ")
-				.append(to.pk == null ? 0 : to.pk)
+				.append(to.pk == null ? "0" : to.pk)
 				.append(",'")
-				.append(to.identity)
+				.append(type)
 				.append("', null, ")
 				.append(order)
 				.append(", current_timestamp, 'dbd', current_timestamp)");
