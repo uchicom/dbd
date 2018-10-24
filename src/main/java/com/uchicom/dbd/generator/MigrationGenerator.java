@@ -36,6 +36,7 @@ public class MigrationGenerator {
 				Transfer transfer = new Transfer();
 				for (int iRow = sheet.getFirstRowNum(); iRow <= sheet.getLastRowNum(); iRow++) {
 					XSSFRow row = sheet.getRow(iRow);
+					if (row == null) continue;
 					if (row.getFirstCellNum() >= 0) {
 						XSSFCell cell = row.getCell(0);
 						if (LABEL_TABLE_NAME.equals(cell.getStringCellValue())) {
