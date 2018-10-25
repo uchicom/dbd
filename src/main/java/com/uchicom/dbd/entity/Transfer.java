@@ -27,7 +27,7 @@ public class Transfer {
 				.append("', 'LOAD'," + "'").append(from.schema).append("', '").append(from.name).append("','")
 				.append(to.schema).append("', '").append(to.name).append("'," + "'DEL_ROW', ").append(index)
 				.append(", '").append(transferColumnList.isEmpty() ? "IMPLIED" : "SPECIFIED")
-				.append("', 1," + "'dbd' current_timestamp, current_timestamp)");
+				.append("', 1," + "'dbd', current_timestamp, current_timestamp)");
 		return builder.toString();
 	}
 

@@ -13,6 +13,8 @@ public class TransferColumn {
 	public String type;
 	
 	public String pk;
+	
+	public String expression;
 
 	public TransferColumn(Column from, Column to) {
 		this.from = from;
@@ -31,7 +33,9 @@ public class TransferColumn {
 				.append(to.pk == null ? "0" : to.pk)
 				.append(",'")
 				.append(type)
-				.append("', null, ")
+				.append("', ")
+				.append(expression)
+				.append(", ")
 				.append(order)
 				.append(", current_timestamp, 'dbd', current_timestamp)");
 		return builder.toString();

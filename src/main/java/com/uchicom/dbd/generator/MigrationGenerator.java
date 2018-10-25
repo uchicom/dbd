@@ -36,7 +36,8 @@ public class MigrationGenerator {
 				Transfer transfer = new Transfer();
 				for (int iRow = sheet.getFirstRowNum(); iRow <= sheet.getLastRowNum(); iRow++) {
 					XSSFRow row = sheet.getRow(iRow);
-					if (row == null) continue;
+					if (row == null)
+						continue;
 					if (row.getFirstCellNum() >= 0) {
 						XSSFCell cell = row.getCell(0);
 						if (LABEL_TABLE_NAME.equals(cell.getStringCellValue())) {
@@ -67,15 +68,53 @@ public class MigrationGenerator {
 							// 次の行からはデータからむ
 							data = true;
 						} else if (data) {
+							XSSFCell cell1 = row.getCell(1);
+							if (cell1 == null)
+								continue;
+							String toName = cell1.getStringCellValue();
+							if ("".equals(toName))
+								continue;
 							Column from = new Column();
 							Column to = new Column();
-							from.name = row.getCell(8).getStringCellValue();
-							to.name = row.getCell(1).getStringCellValue();
+
 							TransferColumn transferColumn = new TransferColumn(from, to);
-							transferColumn.type = "copy";
+							XSSFCell cell8 = row.getCell(8);
+							if (cell8 != null) {
+
+								String fromName = cell8.getStringCellValue();
+								from.name = fromName;
+								to.name = toName;
+								if ("".equals(fromName)) {
+									transferColumn.type = "const";
+									XSSFCell cell5 = row.getCell(5);
+									if (cell5 != null) {
+										switch (cell5.getCellType()) {
+										case BOOLEAN:
+											transferColumn.expression = String.valueOf(cell5.getBooleanCellValue());
+											break;
+										}
+									}
+									
+								} else {
+									transferColumn.type = "copy";
+								}
+							} else {
+
+								transferColumn.type = "const";
+								XSSFCell cell5 = row.getCell(5);
+								if (cell5 != null) {
+									switch (cell5.getCellType()) {
+									case BOOLEAN:
+										transferColumn.expression = String.valueOf(cell5.getBooleanCellValue());
+										break;
+									}
+								}
+								;
+							}
 							if (transfer.transferColumnList.isEmpty()) {
 								transferColumn.pk = "1";
 							}
+
 							transfer.transferColumnList.add(transferColumn);
 						}
 					}
