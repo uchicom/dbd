@@ -40,6 +40,7 @@ public class MigrationGenerator {
 						continue;
 					if (row.getFirstCellNum() >= 0) {
 						XSSFCell cell = row.getCell(0);
+						if (cell == null) continue;
 						if (LABEL_TABLE_NAME.equals(cell.getStringCellValue())) {
 							Table from = new Table();
 							from.name = row.getCell(7).getStringCellValue();
